@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as http from 'http';
@@ -17,11 +16,11 @@ export interface RemoteFile {
 }
 
 export class RemoteFileService {
-  private apiUrl = "http://localhost:9988"; // Test server endpoint
+  private _apiUrl = "http://localhost:9988"; // Test server endpoint
 
   async getFiles(): Promise<RemoteFile[]> {
     try {
-      const response = await this.makeRequest(this.apiUrl);
+      const response = await this._makeRequest(this._apiUrl);
       return JSON.parse(response);
     } catch (error) {
       console.error("Failed to fetch files:", error);
@@ -50,8 +49,8 @@ export class RemoteFileService {
         throw new Error("File path is missing");
       }
 
-      const fileUrl = this.buildUrl(filePath);
-      const response = await this.makeRequest(fileUrl);
+      const fileUrl = this._buildUrl(filePath);
+      const response = await this._makeRequest(fileUrl);
       const data = JSON.parse(response);
       const content = data.content || response;
       
@@ -90,10 +89,10 @@ export class RemoteFileService {
         throw new Error("File path is missing");
       }
 
-      const fileUrl = this.buildUrl(filePath);
+      const fileUrl = this._buildUrl(filePath);
       let response: string;
       try {
-        response = await this.makeRequest(fileUrl);
+        response = await this._makeRequest(fileUrl);
       } catch (error) {
         throw new Error(`Failed to fetch file content: ${error instanceof Error ? error.message : String(error)}`);
       }
@@ -125,9 +124,9 @@ export class RemoteFileService {
     }
   }
 
-  private buildUrl(urlPath?: string): string {
+  private _buildUrl(urlPath?: string): string {
     if (!urlPath) {
-      return this.apiUrl;
+      return this._apiUrl;
     }
 
     // 如果是完整的 URL，直接返回
@@ -137,10 +136,10 @@ export class RemoteFileService {
 
     // 确保路径以 / 开头
     const normalizedPath = urlPath.startsWith("/") ? urlPath : `/${urlPath}`;
-    return `${this.apiUrl}${normalizedPath}`;
+    return `${this._apiUrl}${normalizedPath}`;
   }
 
-  private makeRequest(url: string): Promise<string> {
+  private _makeRequest(url: string): Promise<string> {
     return new Promise((resolve, reject) => {
       try {
         const parsedUrl = new URL(url);
