@@ -1,0 +1,80 @@
+{
+  "name": "vscode-remote-file-explorer",
+  "displayName": "Remote File Explorer",
+  "description": "A VSCode extension for exploring and previewing remote files",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "remoteFileExplorer.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "remoteFileExplorer.openFile",
+        "title": "Open File"
+      },
+      {
+        "command": "remoteFileExplorer.downloadFile",
+        "title": "Download"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "remote-file-explorer",
+          "title": "Remote File Explorer",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "remote-file-explorer": [
+        {
+          "id": "remoteFileExplorerView",
+          "name": "Remote Files"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "remoteFileExplorer.refresh",
+          "when": "view == remoteFileExplorerView",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "remoteFileExplorer.downloadFile",
+          "when": "view == remoteFileExplorerView && viewItem == file",
+          "group": "inline"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "^16.18.34",
+    "@typescript-eslint/eslint-plugin": "^6.7.0",
+    "@typescript-eslint/parser": "^6.7.0",
+    "eslint": "^8.47.0",
+    "typescript": "^5.2.2"
+  }
+}
