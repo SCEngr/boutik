@@ -31,18 +31,26 @@ export class RemoteFileExplorerProvider implements vscode.TreeDataProvider<FileI
                 files = element.file.children || [];
             }
 
-            return files.map(file => new FileItem(
-                file.name,
-                file.type === 'directory' 
-                    ? vscode.TreeItemCollapsibleState.Collapsed 
-                    : vscode.TreeItemCollapsibleState.None,
-                file,
-                {
-                    command: 'remoteFileExplorer.openFile',
-                    title: 'Preview File',
-                    arguments: [file]
+            return files.map(file => {
+                const treeItem = new FileItem(
+                    file.name,
+                    file.type === 'directory' 
+                        ? vscode.TreeItemCollapsibleState.Collapsed 
+                        : vscode.TreeItemCollapsibleState.None,
+                    file
+                );
+
+                // 只为文件设置点击命令，目录点击时自动展开/折叠
+                if (file.type === 'file') {
+                    treeItem.command = {
+                        command: 'remoteFileExplorer.openFile',
+                        title: 'Preview File',
+                        arguments: [file]
+                    };
                 }
-            ));
+
+                return treeItem;
+            });
         } catch (error) {
             vscode.window.showErrorMessage('Failed to load remote files');
             return [];
@@ -54,8 +62,7 @@ export class FileItem extends vscode.TreeItem {
     constructor(
         public readonly label: string,
         public readonly collapsibleState: vscode.TreeItemCollapsibleState,
-        public readonly file: RemoteFile,
-        public readonly command?: vscode.Command
+        public readonly file: RemoteFile
     ) {
         super(label, collapsibleState);
         
@@ -65,25 +72,9 @@ export class FileItem extends vscode.TreeItem {
             : new vscode.ThemeIcon('file');
 
         // Set tooltip with additional information
-        this.tooltip = `${this.label}\nSize: ${this.formatSize(this.file.size)}\nLast Modified: ${new Date(this.file.lastModified).toLocaleString()}`;
-
-        // Set description to show size
-        this.description = this.formatSize(this.file.size);
+        this.tooltip = `${this.label}\nLast Modified: ${new Date(this.file.lastModified).toLocaleString()}`;
 
         // Set contextValue for menus
         this.contextValue = this.file.type;
-    }
-
-    private formatSize(bytes: number): string {
-        const units = ['B', 'KB', 'MB', 'GB'];
-        let size = bytes;
-        let unitIndex = 0;
-        
-        while (size >= 1024 && unitIndex < units.length - 1) {
-            size /= 1024;
-            unitIndex++;
-        }
-        
-        return `${size.toFixed(1)} ${units[unitIndex]}`;
     }
 }

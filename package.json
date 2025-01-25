@@ -1,8 +1,11 @@
 {
-  "name": "vscode-remote-file-explorer",
-  "displayName": "Remote File Explorer",
-  "description": "A VSCode extension for exploring and previewing remote files",
+  "name": "vscode-sce-asset-boutik",
+  "displayName": "Boutik",
+  "description": "A VSCode extension for viewing and downloading AI code generation assets",
   "version": "0.0.1",
+  "author": "Aobo Cheng",
+  "license": "MIT",
+  "icon": "media/boutik.png",
   "engines": {
     "vscode": "^1.80.0"
   },
@@ -31,8 +34,8 @@
       "activitybar": [
         {
           "id": "remote-file-explorer",
-          "title": "Remote File Explorer",
-          "icon": "media/icon.svg"
+          "title": "Boutik",
+          "icon": "media/boutik.png"
         }
       ]
     },
@@ -67,11 +70,14 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "package": "vsce package"
+  },
+  "dependencies": {
+    "@types/node": "^16.18.34",
+    "@types/vscode": "^1.80.0"
   },
   "devDependencies": {
-    "@types/vscode": "^1.80.0",
-    "@types/node": "^16.18.34",
     "@typescript-eslint/eslint-plugin": "^6.7.0",
     "@typescript-eslint/parser": "^6.7.0",
     "eslint": "^8.47.0",

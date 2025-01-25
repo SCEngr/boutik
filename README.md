@@ -1,4 +1,4 @@
-# Remote File Explorer VSCode Extension
+# Boutik VSCode Extension
 
 A VSCode extension that allows you to browse, preview and download remote files.
 
@@ -12,11 +12,13 @@ A VSCode extension that allows you to browse, preview and download remote files.
 ## Development Setup
 
 1. Prerequisites
+
    - Node.js (v14 or higher)
    - VSCode
    - Git
 
 2. Installation
+
    ```bash
    # Clone the repository
    git clone <repository-url>
@@ -27,11 +29,13 @@ A VSCode extension that allows you to browse, preview and download remote files.
    ```
 
 3. Development
+
    - Press F5 in VSCode to start debugging
    - This will open a new VSCode window with the extension loaded
    - Make changes to the code and press Ctrl+R (Cmd+R on macOS) in the debug window to reload
 
 4. Debugging Tips
+
    - Use `console.log()` for basic debugging
    - Check the Debug Console in VSCode for logs
    - Use breakpoints by clicking on the left margin of the editor
@@ -42,6 +46,7 @@ A VSCode extension that allows you to browse, preview and download remote files.
      - Evaluate expressions
 
 5. Testing Changes
+
    - The extension will automatically compile in watch mode
    - Changes will be reflected after reloading the debug window
    - Use the Command Palette (Ctrl+Shift+P) to test extension commands
@@ -54,6 +59,7 @@ A VSCode extension that allows you to browse, preview and download remote files.
 ## Building and Packaging
 
 1. Build the extension:
+
    ```bash
    npm run compile
    ```
