@@ -1,0 +1,10 @@
+name = "boutik-worker"
+main = "src/worker.ts"
+compatibility_date = "2024-01-25"
+
+[vars]
+HUB_PATH = "../hub"
+
+[[kv_namespaces]]
+binding = "FILES"
+id = "617eb42319f34f91a11192ed49c2f04c"

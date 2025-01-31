@@ -1,0 +1,46 @@
+name: Deploy File Server
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16.x'
+        
+    - name: Install dependencies for file-server
+      working-directory: ./file-server
+      run: npm ci
+      
+    - name: Start file server and host hub directory
+      run: |
+        cd file-server
+        nohup npm start -- --port 9988 --root ../hub > server.log 2>&1 &
+        echo "Waiting for server to start..."
+        sleep 5
+        
+    - name: Upload server log as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: server-logs
+        path: file-server/server.log
+        
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./hub
+        
+    - name: Setup tmate session
+      uses: mxschmitt/action-tmate@v3
+      with:
+        limit-access-to-actor: true
+      timeout-minutes: 30

@@ -1,0 +1,30 @@
+{
+  "name": "@boutik/dir-to-json",
+  "version": "1.0.0",
+  "description": "Convert directory structure and file contents to JSON",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "dir-to-json": "./bin/dir-to-json.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc -w",
+    "start": "node bin/dir-to-json.js"
+  },
+  "keywords": [
+    "directory",
+    "json",
+    "converter"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "commander": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.16",
+    "typescript": "^5.3.3"
+  }
+}

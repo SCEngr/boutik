@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as http from 'http';
 import * as https from 'https';
 import { URL } from "url";
+import * as vscode from 'vscode';
 import { FileItem } from '../remoteFileExplorerProvider';
 
 export interface RemoteFile {
@@ -16,7 +17,32 @@ export interface RemoteFile {
 }
 
 export class RemoteFileService {
-  private _apiUrl = "http://localhost:9988"; // Test server endpoint
+  private _apiUrl: string;
+
+  constructor() {
+    this._apiUrl = vscode.workspace.getConfiguration('boutik').get('serverUrl') || 'http://localhost:9988';
+  }
+
+  private async updateApiUrl(): Promise<void> {
+    const url = await vscode.window.showInputBox({
+      prompt: 'Enter the remote file server URL',
+      value: this._apiUrl,
+      validateInput: (value: string) => {
+        try {
+          new URL(value);
+          return null;
+        } catch {
+          return 'Please enter a valid URL';
+        }
+      }
+    });
+
+    if (url) {
+      this._apiUrl = url;
+      await vscode.workspace.getConfiguration('boutik').update('serverUrl', url, true);
+      vscode.window.showInformationMessage(`Server URL updated to: ${url}`);
+    }
+  }
 
   async getFiles(): Promise<RemoteFile[]> {
     try {

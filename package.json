@@ -2,7 +2,10 @@
   "name": "vscode-sce-asset-boutik",
   "displayName": "Boutik",
   "description": "A VSCode extension for viewing and downloading AI code generation assets",
-  "version": "0.0.1",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "author": "Aobo Cheng",
   "license": "MIT",
   "icon": "media/boutik.png",
@@ -28,22 +31,38 @@
       {
         "command": "remoteFileExplorer.downloadFile",
         "title": "Download"
+      },
+      {
+        "command": "remoteFileExplorer.setServerUrl",
+        "title": "Set Server URL",
+        "icon": "$(gear)"
       }
     ],
+    "configuration": {
+      "title": "Boutik",
+      "properties": {
+        "boutik.serverUrl": {
+          "type": "string",
+          "default": "http://localhost:9988",
+          "description": "The URL of the remote file server"
+        }
+      }
+    },
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "remote-file-explorer",
-          "title": "Boutik",
-          "icon": "media/boutik.png"
+          "id": "remoteFileExplorer",
+          "title": "Remote File Explorer",
+          "icon": "resources/dark/folder.svg"
         }
       ]
     },
     "views": {
-      "remote-file-explorer": [
+      "remoteFileExplorer": [
         {
           "id": "remoteFileExplorerView",
-          "name": "Remote Files"
+          "name": "Remote Files",
+          "type": "tree"
         }
       ]
     },
@@ -53,9 +72,19 @@
           "command": "remoteFileExplorer.refresh",
           "when": "view == remoteFileExplorerView",
           "group": "navigation"
+        },
+        {
+          "command": "remoteFileExplorer.setServerUrl",
+          "when": "view == remoteFileExplorerView",
+          "group": "navigation"
         }
       ],
       "view/item/context": [
+        {
+          "command": "remoteFileExplorer.openFile",
+          "when": "view == remoteFileExplorerView && viewItem == file",
+          "group": "inline"
+        },
         {
           "command": "remoteFileExplorer.downloadFile",
           "when": "view == remoteFileExplorerView && viewItem == file",
@@ -65,13 +94,16 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js",
-    "package": "vsce package"
+    "build": "bun run build:extension",
+    "build:extension": "cd packages/extension && bun run build",
+    "dev": "bun run dev:extension",
+    "dev:extension": "cd packages/extension && bun run dev",
+    "worker:dev": "cd worker && wrangler dev",
+    "worker:deploy": "cd worker && wrangler deploy",
+    "worker:delete": "cd worker && wrangler delete",
+    "worker:kv:list": "cd worker && wrangler kv:key list --binding=FILES",
+    "worker:kv:put": "cd worker && wrangler kv:key put --binding=FILES",
+    "worker:kv:get": "cd worker && wrangler kv:key get --binding=FILES"
   },
   "dependencies": {
     "@types/node": "^16.18.34",
