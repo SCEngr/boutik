@@ -65,8 +65,8 @@
       "activitybar": [
         {
           "id": "remoteFileExplorer",
-          "title": "Remote File Explorer",
-          "icon": "media/boutik.png"
+          "title": "Boutik",
+          "icon": "./packages/extension/media/boutik.png"
         }
       ]
     },
@@ -74,7 +74,7 @@
       "remoteFileExplorer": [
         {
           "id": "remoteFileExplorerView",
-          "name": "Remote Files",
+          "name": "Files",
           "type": "tree"
         }
       ]

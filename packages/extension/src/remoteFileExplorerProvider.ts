@@ -1,5 +1,5 @@
-import * as vscode from 'vscode';
-import { RemoteFile, RemoteFileService } from './services/remoteFileService';
+import * as vscode from "vscode";
+import { RemoteFile, RemoteFileService } from "./services/remoteFileService";
 
 export class FileItem extends vscode.TreeItem {
   constructor(
@@ -10,26 +10,32 @@ export class FileItem extends vscode.TreeItem {
     this.tooltip = file.path || file.name;
     this.contextValue = file.type;
 
-    if (file.type === 'file') {
+    if (file.type === "file") {
       // Add icons for file items
-      this.iconPath = new vscode.ThemeIcon('file');
-      
+      this.iconPath = new vscode.ThemeIcon("file");
+
       // Add command for file items
       this.command = {
-        command: 'remoteFileExplorer.openFile',
-        title: 'Open File',
+        command: "remoteFileExplorer.openFile",
+        title: "Open File",
         arguments: [this],
       };
     } else {
       // Add folder icon for directories
-      this.iconPath = new vscode.ThemeIcon('folder');
+      this.iconPath = new vscode.ThemeIcon("folder");
     }
   }
 }
 
-export class RemoteFileExplorerProvider implements vscode.TreeDataProvider<FileItem> {
-  private _onDidChangeTreeData: vscode.EventEmitter<FileItem | undefined | null | void> = new vscode.EventEmitter<FileItem | undefined | null | void>();
-  readonly onDidChangeTreeData: vscode.Event<FileItem | undefined | null | void> = this._onDidChangeTreeData.event;
+export class RemoteFileExplorerProvider
+  implements vscode.TreeDataProvider<FileItem>
+{
+  private _onDidChangeTreeData: vscode.EventEmitter<
+    FileItem | undefined | null | void
+  > = new vscode.EventEmitter<FileItem | undefined | null | void>();
+  readonly onDidChangeTreeData: vscode.Event<
+    FileItem | undefined | null | void
+  > = this._onDidChangeTreeData.event;
 
   constructor(private remoteFileService: RemoteFileService) {}
 
@@ -46,7 +52,7 @@ export class RemoteFileExplorerProvider implements vscode.TreeDataProvider<FileI
       // Root level
       const files = await this.remoteFileService.getFiles();
       return this.createTreeItems(files);
-    } else if (element.file.type === 'directory' && element.file.children) {
+    } else if (element.file.type === "directory" && element.file.children) {
       // Directory level
       return this.createTreeItems(element.file.children);
     }
@@ -54,42 +60,46 @@ export class RemoteFileExplorerProvider implements vscode.TreeDataProvider<FileI
   }
 
   private createTreeItems(files: RemoteFile[]): FileItem[] {
-    return files.map(file => {
-      const collapsibleState = file.type === 'directory'
-        ? vscode.TreeItemCollapsibleState.Collapsed
-        : vscode.TreeItemCollapsibleState.None;
-      
+    return files.map((file) => {
+      const collapsibleState =
+        file.type === "directory"
+          ? vscode.TreeItemCollapsibleState.Collapsed
+          : vscode.TreeItemCollapsibleState.None;
+
       const item = new FileItem(file, collapsibleState);
-      
-      if (file.type === 'file') {
+
+      if (file.type === "file") {
         // Add buttons to file items
-        item.contextValue = 'file';
+        item.contextValue = "file";
         item.tooltip = `${file.name}\nClick to open\nUse buttons to copy or download`;
         item.command = {
-          command: 'remoteFileExplorer.openFile',
-          title: 'Open File',
-          arguments: [item]
+          command: "remoteFileExplorer.openFile",
+          title: "Open File",
+          arguments: [item],
         };
       }
-      
+
       return item;
     });
   }
 
   async openFile(item: FileItem): Promise<void> {
-    if (!item || item.file.type !== 'file') {
+    if (!item || item.file.type !== "file") {
       return;
     }
 
     try {
       const content = await this.remoteFileService.previewFile(item.file);
       if (!content) {
-        throw new Error('No content received');
+        throw new Error("No content received");
       }
 
       const doc = await vscode.workspace.openTextDocument({
         language: this.getLanguageId(item.file.name),
-        content: typeof content === 'string' ? content : JSON.stringify(content, null, 2),
+        content:
+          typeof content === "string"
+            ? content
+            : JSON.stringify(content, null, 2),
       });
 
       await vscode.window.showTextDocument(doc, {
@@ -98,87 +108,107 @@ export class RemoteFileExplorerProvider implements vscode.TreeDataProvider<FileI
         preserveFocus: true,
       });
     } catch (error) {
-      vscode.window.showErrorMessage(`Failed to open file: ${error instanceof Error ? error.message : String(error)}`);
+      vscode.window.showErrorMessage(
+        `Failed to open file: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     }
   }
 
   async downloadFile(item: FileItem): Promise<void> {
-    if (!item || item.file.type !== 'file') {
+    if (!item || item.file.type !== "file") {
       return;
     }
 
     try {
       if (!vscode.workspace.workspaceFolders) {
-        throw new Error('No workspace folder open');
+        throw new Error("No workspace folder open");
       }
 
       const targetPath = vscode.workspace.workspaceFolders[0].uri.fsPath;
       await this.remoteFileService.downloadFile(item.file, targetPath);
-      vscode.window.showInformationMessage(`File ${item.file.name} downloaded successfully`);
+      vscode.window.showInformationMessage(
+        `File ${item.file.name} downloaded successfully`
+      );
     } catch (error) {
-      vscode.window.showErrorMessage(`Failed to download file: ${error instanceof Error ? error.message : String(error)}`);
+      vscode.window.showErrorMessage(
+        `Failed to download file: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     }
   }
 
   async copyContent(item: FileItem): Promise<void> {
-    if (!item || item.file.type !== 'file') {
+    if (!item || item.file.type !== "file") {
       return;
     }
 
     try {
       const content = await this.remoteFileService.previewFile(item.file);
       if (!content) {
-        throw new Error('No content received');
+        throw new Error("No content received");
       }
 
-      const textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+      const textContent =
+        typeof content === "string"
+          ? content
+          : JSON.stringify(content, null, 2);
       await vscode.env.clipboard.writeText(textContent);
-      vscode.window.showInformationMessage(`Content of ${item.file.name} copied to clipboard`);
+      vscode.window.showInformationMessage(
+        `Content of ${item.file.name} copied to clipboard`
+      );
     } catch (error) {
-      vscode.window.showErrorMessage(`Failed to copy content: ${error instanceof Error ? error.message : String(error)}`);
+      vscode.window.showErrorMessage(
+        `Failed to copy content: ${
+          error instanceof Error ? error.message : String(error)
+        }`
+      );
     }
   }
 
   private getLanguageId(fileName: string): string {
-    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+    const ext = fileName.split(".").pop()?.toLowerCase() || "";
     const languageMap: { [key: string]: string } = {
-      ts: 'typescript',
-      js: 'javascript',
-      py: 'python',
-      java: 'java',
-      c: 'c',
-      cpp: 'cpp',
-      cs: 'csharp',
-      go: 'go',
-      rs: 'rust',
-      swift: 'swift',
-      kt: 'kotlin',
-      rb: 'ruby',
-      php: 'php',
-      html: 'html',
-      htm: 'html',
-      xml: 'xml',
-      md: 'markdown',
-      json: 'json',
-      yaml: 'yaml',
-      yml: 'yaml',
-      css: 'css',
-      scss: 'scss',
-      sass: 'sass',
-      less: 'less',
-      ini: 'ini',
-      conf: 'ini',
-      properties: 'properties',
-      env: 'properties',
-      sh: 'shellscript',
-      bash: 'shellscript',
-      bat: 'bat',
-      ps1: 'powershell',
-      sql: 'sql',
-      txt: 'plaintext',
-      log: 'plaintext',
+      ts: "typescript",
+      js: "javascript",
+      py: "python",
+      java: "java",
+      c: "c",
+      cpp: "cpp",
+      cs: "csharp",
+      go: "go",
+      rs: "rust",
+      swift: "swift",
+      kt: "kotlin",
+      rb: "ruby",
+      php: "php",
+      html: "html",
+      htm: "html",
+      xml: "xml",
+      md: "markdown",
+      eco: "eco",
+      json: "json",
+      yaml: "yaml",
+      yml: "yaml",
+      css: "css",
+      scss: "scss",
+      sass: "sass",
+      less: "less",
+      ini: "ini",
+      conf: "ini",
+      properties: "properties",
+      env: "properties",
+      sh: "shellscript",
+      bash: "shellscript",
+      bat: "bat",
+      ps1: "powershell",
+      sql: "sql",
+      txt: "plaintext",
+      log: "plaintext",
     };
 
-    return languageMap[ext] || 'plaintext';
+    return languageMap[ext] || "plaintext";
   }
 }
