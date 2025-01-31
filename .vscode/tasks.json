@@ -2,8 +2,18 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "type": "npm",
-            "script": "watch",
+            "label": "build-extension",
+            "type": "shell",
+            "command": "cd packages/extension && bun run build",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "watch-extension",
+            "type": "shell",
+            "command": "cd packages/extension && bun run watch",
             "problemMatcher": "$tsc-watch",
             "isBackground": true,
             "presentation": {

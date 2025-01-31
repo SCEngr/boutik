@@ -24,6 +24,11 @@ export function activate(context: vscode.ExtensionContext) {
   });
   context.subscriptions.push(disposable);
 
+  disposable = vscode.commands.registerCommand('remoteFileExplorer.copyContent', async (fileItem) => {
+    await remoteFileExplorerProvider.copyContent(fileItem);
+  });
+  context.subscriptions.push(disposable);
+
   disposable = vscode.commands.registerCommand('remoteFileExplorer.downloadFile', async (fileItem) => {
     await remoteFileExplorerProvider.downloadFile(fileItem);
   });

@@ -9,15 +9,26 @@ export class MainPanel {
     this._panel = panel;
     this._panel.webview.html = this._getWebviewContent(serverUrl || '');
     this._setWebviewMessageListener(this._panel.webview);
+
+    // Handle panel disposal
+    this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
   }
 
   public static render(extensionUri: vscode.Uri) {
     const serverUrl = vscode.workspace.getConfiguration('boutik').get<string>('serverUrl');
 
     if (MainPanel.currentPanel) {
-      MainPanel.currentPanel._panel.reveal(vscode.ViewColumn.One);
-      MainPanel.currentPanel._updateContent(serverUrl || '');
-    } else {
+      // Check if panel is disposed
+      try {
+        MainPanel.currentPanel._panel.reveal(vscode.ViewColumn.One);
+        MainPanel.currentPanel._updateContent(serverUrl || '');
+      } catch (error) {
+        // If panel is disposed, create a new one
+        MainPanel.currentPanel = undefined;
+      }
+    }
+    
+    if (!MainPanel.currentPanel) {
       const panel = vscode.window.createWebviewPanel(
         'boutikMain',
         'Boutik',

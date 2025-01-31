@@ -11,11 +11,18 @@ export class FileItem extends vscode.TreeItem {
     this.contextValue = file.type;
 
     if (file.type === 'file') {
+      // Add icons for file items
+      this.iconPath = new vscode.ThemeIcon('file');
+      
+      // Add command for file items
       this.command = {
         command: 'remoteFileExplorer.openFile',
         title: 'Open File',
         arguments: [this],
       };
+    } else {
+      // Add folder icon for directories
+      this.iconPath = new vscode.ThemeIcon('folder');
     }
   }
 }
@@ -51,7 +58,21 @@ export class RemoteFileExplorerProvider implements vscode.TreeDataProvider<FileI
       const collapsibleState = file.type === 'directory'
         ? vscode.TreeItemCollapsibleState.Collapsed
         : vscode.TreeItemCollapsibleState.None;
-      return new FileItem(file, collapsibleState);
+      
+      const item = new FileItem(file, collapsibleState);
+      
+      if (file.type === 'file') {
+        // Add buttons to file items
+        item.contextValue = 'file';
+        item.tooltip = `${file.name}\nClick to open\nUse buttons to copy or download`;
+        item.command = {
+          command: 'remoteFileExplorer.openFile',
+          title: 'Open File',
+          arguments: [item]
+        };
+      }
+      
+      return item;
     });
   }
 
@@ -96,6 +117,25 @@ export class RemoteFileExplorerProvider implements vscode.TreeDataProvider<FileI
       vscode.window.showInformationMessage(`File ${item.file.name} downloaded successfully`);
     } catch (error) {
       vscode.window.showErrorMessage(`Failed to download file: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  async copyContent(item: FileItem): Promise<void> {
+    if (!item || item.file.type !== 'file') {
+      return;
+    }
+
+    try {
+      const content = await this.remoteFileService.previewFile(item.file);
+      if (!content) {
+        throw new Error('No content received');
+      }
+
+      const textContent = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+      await vscode.env.clipboard.writeText(textContent);
+      vscode.window.showInformationMessage(`Content of ${item.file.name} copied to clipboard`);
+    } catch (error) {
+      vscode.window.showErrorMessage(`Failed to copy content: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 
